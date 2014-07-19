@@ -5,6 +5,7 @@ import org.vinsert.api.MethodContext;
 import org.vinsert.api.Screen;
 import org.vinsert.core.control.ScriptManager;
 import org.vinsert.game.engine.extension.CanvasExtension;
+import org.vinsert.util.Configuration;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -58,8 +59,7 @@ public final class ScreenImpl implements Screen {
         if (ctx.client.getCanvas() instanceof CanvasExtension) {
             CanvasExtension ext = (CanvasExtension) ctx.client.getCanvas();
             BufferedImage buffer = ext.getBackBuffer();
-            File screenshotsFolder = new File(System.getProperty("user.home") + File.separator + "vInsert"
-                    + File.separator + "Screenshots" + File.separator +
+            File screenshotsFolder = new File(Configuration.SCREENSHOTS_DIR +
                     scriptManager.getManifest().name() + File.separator);
             if (screenshotsFolder.exists() || screenshotsFolder.mkdirs()) {
                 try {

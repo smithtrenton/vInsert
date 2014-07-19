@@ -1,5 +1,7 @@
 package org.vinsert.core.model;
 
+import org.vinsert.util.Configuration;
+
 import java.util.List;
 
 /**
@@ -25,10 +27,8 @@ public final class Property {
 
     public static void defaults() {
         if (get("sources") == null && get("randoms") == null) {
-            Property sources = new Property("sources", System.getProperty("user.home") + "/vInsert/Scripts/");
-            Property randoms = new Property("randoms", System.getProperty("user.home") + "/vInsert/Randoms/");
+            Property sources = new Property("sources", Configuration.SCRIPTS_DIR);
             sources.save();
-            randoms.save();
         }
 
         if (get("http_proxy") == null) {

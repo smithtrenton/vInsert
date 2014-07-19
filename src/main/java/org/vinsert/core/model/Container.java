@@ -5,6 +5,7 @@ import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 import org.apache.log4j.Logger;
 import org.vinsert.core.exception.ContainerException;
+import org.vinsert.util.Configuration;
 
 import java.io.*;
 import java.util.List;
@@ -83,7 +84,7 @@ public class Container<T> {
     }
 
     static {
-        File file = new File(System.getProperty("user.home") + "/vInsert/Settings/");
+        File file = new File(Configuration.SETTINGS_DIR + File.separator);
         if (!file.exists() && !file.mkdirs()) {
             throw new ContainerException("Failed to create settings directory for containers.");
         }

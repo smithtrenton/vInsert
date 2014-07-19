@@ -17,7 +17,7 @@ import java.util.jar.JarFile;
 
 /**
  * ClassLoader used to load un-modified classes to bypass potential client detections.
- *
+ * Currently disabled as it causes gameplay issues
  * @author : const_
  */
 public final class StaticClassLoader extends ClassLoader {

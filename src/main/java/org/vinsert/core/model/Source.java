@@ -26,9 +26,7 @@ public final class Source {
     public static void defaults() {
         if (container.getAll().size() == 0) {
             Source scripts = new Source(Property.get("sources").getValue(), "");
-            Source randoms = new Source(Property.get("randoms").getValue(), "");
             scripts.save();
-            randoms.save();
         }
     }
 

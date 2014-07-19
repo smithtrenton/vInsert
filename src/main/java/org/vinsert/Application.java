@@ -10,6 +10,7 @@ import org.vinsert.core.model.Source;
 import org.vinsert.gui.ControllerManager;
 import org.vinsert.gui.component.Appender;
 import org.vinsert.gui.controller.*;
+import org.vinsert.util.Configuration;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +27,7 @@ public final class Application {
     }
 
     public static void main(String[] args) {
+        Configuration.mkdirs();
         Logger.getRootLogger().addAppender(new Appender(new SimpleLayout()));
         System.setSecurityManager(new CustomSecurityManager());
         prepareEnvironment();
