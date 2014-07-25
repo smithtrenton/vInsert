@@ -30,6 +30,7 @@ public final class AppletLoader implements Callable<Applet> {
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_" +
             "9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36";
     private static final String PACK_URL = "http://vinsert.org/metadata/grab.php";
+    private static final String VERSION_URL = "http://vinsert.org/metadata/version.php";
 
     public AppletLoader(Session session) {
         this.session = session;
@@ -46,7 +47,6 @@ public final class AppletLoader implements Callable<Applet> {
     public Applet call() throws Exception {
         try {
             String mainClass = configuration.getMainClass();
-            //  StaticClassLoader.prepare();
             File jar = grab();
             URL jarURL = jar.toURI().toURL();
             URLClassLoader classLoader = AppletClassLoader.newInstance(new URL[]{jarURL});
@@ -92,20 +92,16 @@ public final class AppletLoader implements Callable<Applet> {
     }
 
     private File grab() throws IOException {
-        int oldVersion = 50;
-        for (File f : new File(Configuration.SETTINGS_DIR).listFiles()) {
-            try {
-                if (f.getName().endsWith(".jar")) {
-                    String ver = f.getName().split("k|.jar")[1];
-                    oldVersion = Integer.parseInt(ver);
-                    break;
-                }
-            } catch (Exception e) {
-            }
-        }
-        int version = currentVersion(oldVersion);
-        if (version == -1) {
-            logger.error("Version is -1");
+        int onlineVersion = Integer.parseInt(Request.Get(VERSION_URL)
+                .version(HttpVersion.HTTP_1_1)
+                .userAgent(USER_AGENT)
+                .useExpectContinue()
+                .execute()
+                .returnContent().asString());
+        int version = currentVersion(onlineVersion);
+        if (version == -1 || version != onlineVersion) {
+            logger.error("Version is outdated");
+            return null;
         }
         File file = new File(Configuration.SETTINGS_DIR + "gamepack" + version + ".jar");
         if (file.exists()) {

@@ -32,7 +32,6 @@ public interface IClient {
 
     IPacketBuffer createBuffer();
 
-
     ICache getNpcCompositeCache();
 
 
