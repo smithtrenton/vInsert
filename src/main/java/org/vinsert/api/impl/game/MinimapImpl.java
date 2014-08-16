@@ -3,6 +3,7 @@ package org.vinsert.api.impl.game;
 import com.google.inject.Inject;
 import org.vinsert.api.MethodContext;
 import org.vinsert.api.Minimap;
+import org.vinsert.api.impl.LocalPlayer;
 import org.vinsert.api.wrappers.Tile;
 import org.vinsert.api.wrappers.Widget;
 
@@ -39,87 +40,22 @@ public final class MinimapImpl implements Minimap {
      */
     @Override
     public Point convert(int x, int y) {
-        Tile tile = new Tile(x, y);
-        if (tile.distanceTo(ctx.player.getTile()) > 17) {
+        int xMap = x - ctx.client.getBaseX();
+        int yMap = y - ctx.client.getBaseY();
+        LocalPlayer myPlayer = ctx.player;
+        x = (xMap * 4 + 2) - myPlayer.getLocalX() / 32;
+        y = (yMap * 4 + 2) - myPlayer.getLocalY() / 32;
+        int mapScale = ctx.client.getMinimapScale();
+        int mapOffset = ctx.client.getMinimapOffset();
+        int angle = ctx.client.getMinimapAngle() + mapScale & 0x7FF;
+        int j = x * x + y * y;
+        if (j > 6400)
             return new Point(-1, -1);
-        }
-
-        x -= ctx.client.getBaseX();
-        y -= ctx.client.getBaseY();
-        Widget mm = getWidget();
-        if (mm != null) {
-            final int xx = x * 4 + 2 - ctx.players.getLocal().getLocalX() / 32;
-            final int yy = 2 + y * 4 - ctx.players.getLocal().getLocalY() / 32;
-
-            int degree = ctx.client.getMinimapScale() + ctx.client.getMinimapAngle() & 0x7FF;
-            int dist = (int) (Math.pow(xx, 2) + Math.pow(yy, 2));
-
-            if (dist <= 6400) {
-                int sin = ctx.client.getSineTable()[degree];
-                int cos = ctx.client.getCosineTable()[degree];
-
-                cos = cos * 256 / (ctx.client.getMinimapOffset() + 256);
-                sin = sin * 256 / (ctx.client.getMinimapOffset() + 256);
-
-                int mx = yy * sin + cos * xx >> 16;
-                int my = sin * xx - yy * cos >> 16;
-                final int screenx = 18 + ((mm.getX() + mm.getWidth() / 2) + mx);
-                final int screeny = (mm.getY() + mm.getWidth() / 2 - 1) + my;
-                if (mm.getArea().contains(screenx, screeny) && (Math.max(my, -my) <= (((mm.getWidth()) / 2.0) * .8))
-                        && (Math.max(mx, -mx) <= (((mm
-                        .getHeight()) / 2) * .8))) {
-                    return new Point(screenx, screeny);
-                }
-            }
-        }
-        return new Point(-1, -1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Point convertUnbounded(Tile tile) {
-        return tile == null ? new Point(-1, -1) : convertUnbounded(tile.getX(), tile.getY());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Point convertUnbounded(int x, int y) {
-        x -= ctx.client.getBaseX();
-        y -= ctx.client.getBaseY();
-        Widget mm = ctx.widgets.find().id(MINIMAP_INTERFACE_GROUP, MINIMAP_INTERFACE_CHILD).single();
-        if (mm != null) {
-            final int xx = x * 4 + 2 - ctx.players.getLocal().getLocalX() / 32;
-            final int yy = 2 + y * 4 - ctx.players.getLocal().getLocalY() / 32;
-
-            int degree = ctx.client.getMinimapScale() + ctx.client.getMinimapAngle() & 0x7FF;
-            int dist = (int) (Math.pow(xx, 2) + Math.pow(yy, 2));
-
-            int sin = ctx.client.getSineTable()[degree];
-            int cos = ctx.client.getCosineTable()[degree];
-
-            cos = cos * 256 / (ctx.client.getMinimapOffset() + 256);
-            sin = sin * 256 / (ctx.client.getMinimapOffset() + 256);
-
-            int mx = yy * sin + cos * xx >> 16;
-            int my = sin * xx - yy * cos >> 16;
-            if (dist < 2500) {
-
-                final int sx = 18 + ((mm.getX() + mm.getHeight() / 2) + mx);
-                final int sy = (mm.getY() + mm.getHeight() / 2 - 1) + my;
-
-                return new Point(sx, sy);
-            }
-
-            final int screenx = 18 + ((mm.getX() + mm.getWidth() / 2) + mx);
-            final int screeny = (mm.getY() + mm.getWidth() / 2 - 1) + my;
-
-            return new Point(screenx, screeny);
-        }
-        return new Point(-1, -1);
+        int sin = ctx.client.getSineTable()[angle] * 256 / (mapOffset + 256);
+        int cos = ctx.client.getCosineTable()[angle] * 256 / (mapOffset + 256);
+        xMap = y * sin + x * cos >> 16;
+        yMap = y * cos - x * sin >> 16;
+        return new Point(644 + xMap, 80 - yMap);
     }
 
     /**

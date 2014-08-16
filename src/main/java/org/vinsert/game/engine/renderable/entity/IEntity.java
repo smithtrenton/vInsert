@@ -13,10 +13,6 @@ public interface IEntity extends IRenderable {
 
     int getLocalY();
 
-    int[] getQueueX();
-
-    int[] getQueueY();
-
     int getAnimationId();
 
     int getOrientation();

@@ -167,7 +167,7 @@ public final class WalkingImpl implements Walking {
      */
     @Override
     public boolean clickOnMap(final Tile tile) {
-        final Point m = ctx.minimap.convert(getReachableVariant(tile));
+        Point m = ctx.minimap.convert(getReachableVariant(tile));
         if (m.x != -1 || (getClosestOnMap(tile) != null && clickOnMap(getClosestOnMap(tile)))) {
             ctx.keyboard.hold(KeyEvent.VK_CONTROL);
             return ctx.mouse.moveDynamic(

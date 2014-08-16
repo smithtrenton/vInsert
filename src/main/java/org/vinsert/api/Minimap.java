@@ -30,9 +30,5 @@ public interface Minimap {
      */
     Point convert(int x, int y);
 
-    Point convertUnbounded(int x, int y);
-
-    Point convertUnbounded(Tile tile);
-
     Widget getWidget();
 }

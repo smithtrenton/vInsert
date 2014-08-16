@@ -20,7 +20,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public final class Application {
     private static Logger logger = Logger.getLogger(Application.class);
-    public static final double VERSION = 1.0;
+    public static final double VERSION = 4.01;
 
     private Application() {
 
