@@ -16,6 +16,8 @@ public final class Icons {
     public static final ImageIcon HOME;
     public static final ImageIcon PLUS;
     public static final ImageIcon USER;
+    public static final ImageIcon LOGO;
+    public static final ImageIcon LOGO30;
 
     private Icons() {
 
@@ -31,6 +33,8 @@ public final class Icons {
             DISABLED = new ImageIcon(ImageIO.read(Icons.class.getResourceAsStream("/close.png")));
             ENABLED = new ImageIcon(ImageIO.read(Icons.class.getResourceAsStream("/checkmark.png")));
             PAUSE = new ImageIcon(ImageIO.read(Icons.class.getResourceAsStream("/pause2.png")));
+            LOGO = new ImageIcon(ImageIO.read(Icons.class.getResourceAsStream("/logo.png")));
+            LOGO30 = new ImageIcon(ImageIO.read(Icons.class.getResourceAsStream("/logo-30px.png")));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load icon..", e);
         }
