@@ -47,6 +47,12 @@ public final class AccountController extends Controller<AccountView> {
         getComponent().setVisible(true);
     }
 
+    public void addNewAccount() {
+        Account account = new Account("Username", "Password", "0000");
+        account.save();
+        view.initList();
+    }
+
     public void onOk() {
         for (Account account : getComponent().getAccounts()) {
             if (account.isPurgeMarker()) {

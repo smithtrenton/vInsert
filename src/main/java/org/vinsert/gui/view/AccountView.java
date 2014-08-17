@@ -6,23 +6,14 @@ import org.vinsert.gui.controller.AccountController;
 import org.vinsert.util.AES;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -36,6 +27,7 @@ public final class AccountView extends JFrame {
     private JPasswordField pwdPassword;
     private JSpinner txtBankPin;
     private JComboBox<Skill> cbxLampSkill;
+
 
     public AccountView(final AccountController controller) {
         setTitle("Account Manager - vInsert");
@@ -62,9 +54,7 @@ public final class AccountView extends JFrame {
         btnAddNewAccount.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Account account = new Account("Username", "Password", "0000");
-                account.save();
-                initList();
+                controller.addNewAccount();
                 lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
             }
         });
@@ -221,7 +211,7 @@ public final class AccountView extends JFrame {
         pack();
     }
 
-    private void initList() {
+    public void initList() {
         lstAccounts.setListData(Account.getAll().toArray(new Account[Account.getAll().size()]));
         lstAccounts.repaint();
     }
