@@ -24,6 +24,7 @@ public final class UnlockView extends JDialog {
         setLayout(null);
         setSize(465, 260);
         setModal(true);
+        setResizable(false);
 
         JPanel header = new JPanel();
         header.setLayout(null);
@@ -34,7 +35,7 @@ public final class UnlockView extends JDialog {
         lblLogo.setBounds(335, 13, 95, 30);
         header.add(lblLogo);
 
-        JLabel lblUnlockDatabase = new JLabel("Unlock database");
+        JLabel lblUnlockDatabase = new JLabel("Unlock Database");
         lblUnlockDatabase.setFont(new Font("Arial", Font.PLAIN, 24));
         lblUnlockDatabase.setBounds(20, 1, 300, 50);
         header.add(lblUnlockDatabase);
@@ -78,6 +79,7 @@ public final class UnlockView extends JDialog {
                 unlockController.unlock();
             }
         });
+        btnUnlock.setSelected(true);
         add(btnUnlock);
 
         JButton btnCancel = new JButton("Cancel");
