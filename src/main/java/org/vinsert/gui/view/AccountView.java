@@ -71,7 +71,8 @@ public final class AccountView extends JFrame {
                 if (value != null) {
                     txtUsername.setText(value.getUsername());
                     pwdPassword.setText(value.getPassword());
-                    txtBankPin.setValue(value.getBankPin());
+
+                    txtBankPin.setValue(Integer.valueOf(value.getBankPin()));
                     cbxLampSkill.setSelectedItem(value.getLampSkill());
                 }
             }
