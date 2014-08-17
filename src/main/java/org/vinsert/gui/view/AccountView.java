@@ -3,15 +3,26 @@ package org.vinsert.gui.view;
 import org.vinsert.api.wrappers.Skill;
 import org.vinsert.core.model.Account;
 import org.vinsert.gui.controller.AccountController;
+import org.vinsert.util.AES;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -23,7 +34,7 @@ public final class AccountView extends JFrame {
     private JList<Account> lstAccounts;
     private JTextField txtUsername;
     private JPasswordField pwdPassword;
-    private JTextField txtBankPin;
+    private JSpinner txtBankPin;
     private JComboBox<Skill> cbxLampSkill;
 
     public AccountView(final AccountController controller) {
@@ -40,9 +51,27 @@ public final class AccountView extends JFrame {
         body.setLayout(new BorderLayout(20, 20));
         body.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        JPanel pnlList = new JPanel();
+        pnlList.setLayout(new BorderLayout());
+        body.add(pnlList, BorderLayout.WEST);
+
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(6, 32, 172, 180);
-        body.add(scrollPane, BorderLayout.WEST);
+        pnlList.add(scrollPane, BorderLayout.CENTER);
+
+        JButton btnAddNewAccount = new JButton("Add new account");
+        btnAddNewAccount.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Account account = new Account("Username", "Password", "0000");
+                account.save();
+                initList();
+                lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
+            }
+        });
+        pnlList.add(btnAddNewAccount, BorderLayout.SOUTH);
+
+
+
         lstAccounts = new JList<Account>();
         lstAccounts.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -51,7 +80,7 @@ public final class AccountView extends JFrame {
                 if (value != null) {
                     txtUsername.setText(value.getUsername());
                     pwdPassword.setText(value.getPassword());
-                    txtBankPin.setText(value.getBankPin());
+                    txtBankPin.setValue(value.getBankPin());
                     cbxLampSkill.setSelectedItem(value.getLampSkill());
                 }
             }
@@ -68,22 +97,73 @@ public final class AccountView extends JFrame {
 
         txtUsername = new JTextField();
         pwdPassword = new JPasswordField();
-        txtBankPin = new JTextField();
+        txtBankPin = new JSpinner(new SpinnerNumberModel(1111,1111,9999,1));
 
-        txtBankPin.setColumns(4);
+
+        cbxLampSkill = new JComboBox<Skill>();
+
+        for (Skill skill : Skill.values()) {
+            cbxLampSkill.addItem(skill);
+        }
 
         JLabel lblUsername = new JLabel("Username");
         JLabel lblPassword = new JLabel("Password");
         JLabel lblBankPin = new JLabel("Bank Pin");
+        JLabel lblLampSkill = new JLabel("Lamp Skill");
+
+        JPanel pnlNull = new JPanel();
+
+        JPanel pnlAccFooter = new JPanel();
+        pnlAccFooter.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+
+        JButton btnSave = new JButton("Save");
+        btnSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Account selected = lstAccounts.getSelectedValue();
+                if (selected != null) {
+                    selected.setUsername(txtUsername.getText());
+                    selected.setPassword(AES.encrypt(new String(pwdPassword.getPassword()),
+                            AES.getMasterPassword()));
+                    selected.setBankPin(String.valueOf(txtBankPin.getValue()));
+                    selected.setLampSkill((Skill) cbxLampSkill.getSelectedItem());
+                    selected.save();
+                    initList();
+                }
+            }
+        });
+        btnSave.setMargin(new Insets(0,0,0,5));
+
+        JButton btnDelete = new JButton("Delete");
+        btnDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Account selected = lstAccounts.getSelectedValue();
+                if (selected != null) {
+                    Account.getAll().remove(selected);
+                    initList();
+                    lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
+                }
+            }
+        });
+
+        pnlAccFooter.add(btnSave);
+        pnlAccFooter.add(btnDelete);
 
         GroupLayout.SequentialGroup lytAccountHorizontal = lytAccount.createSequentialGroup();
 
         lytAccountHorizontal.addGroup(lytAccount.createParallelGroup().
                 addComponent(lblUsername).
-                addComponent(lblPassword));
+                addComponent(lblPassword).
+                addComponent(lblBankPin).
+                addComponent(lblLampSkill).
+                addComponent(pnlNull));
         lytAccountHorizontal.addGroup(lytAccount.createParallelGroup().
                 addComponent(txtUsername).
-                addComponent(pwdPassword));
+                addComponent(pwdPassword).
+                addComponent(txtBankPin).
+                addComponent(cbxLampSkill).
+                addComponent(pnlAccFooter));
         lytAccount.setHorizontalGroup(lytAccountHorizontal);
 
         GroupLayout.SequentialGroup lytAccountVertical = lytAccount.createSequentialGroup();
@@ -94,6 +174,15 @@ public final class AccountView extends JFrame {
         lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
                 addComponent(lblPassword).
                 addComponent(pwdPassword));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(lblBankPin).
+                addComponent(txtBankPin));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(lblLampSkill).
+                addComponent(cbxLampSkill));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(pnlNull).
+                addComponent(pnlAccFooter));
         lytAccount.setVerticalGroup(lytAccountVertical);
 
 
@@ -101,8 +190,11 @@ public final class AccountView extends JFrame {
 
         // ------- FOOTER -------
         JPanel footer = new JPanel();
-        footer.setLayout(new BorderLayout(20, 20));
+        footer.setLayout(new BorderLayout());
+        footer.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
         JPanel footerButtons = new JPanel();
+
+        footer.add(new JSeparator(), BorderLayout.NORTH);
 
         JButton btnOk = new JButton("OK");
         btnOk.addActionListener(new ActionListener() {
@@ -126,7 +218,7 @@ public final class AccountView extends JFrame {
         footer.add(footerButtons, BorderLayout.EAST);
         add(footer, BorderLayout.SOUTH);
 
-        setSize(610, 290);
+        pack();
     }
 
     private void initList() {
