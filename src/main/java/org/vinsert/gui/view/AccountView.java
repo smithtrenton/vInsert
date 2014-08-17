@@ -55,6 +55,7 @@ public final class AccountView extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 controller.addNewAccount();
+                initList();
                 lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
             }
         });
@@ -87,7 +88,7 @@ public final class AccountView extends JFrame {
 
         txtUsername = new JTextField();
         pwdPassword = new JPasswordField();
-        txtBankPin = new JSpinner(new SpinnerNumberModel(1111,1111,9999,1));
+        txtBankPin = new JSpinner(new SpinnerNumberModel(0000,0000,9999,1));
 
 
         cbxLampSkill = new JComboBox<Skill>();
@@ -112,12 +113,13 @@ public final class AccountView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Account selected = lstAccounts.getSelectedValue();
                 if (selected != null) {
-                    selected.setUsername(txtUsername.getText());
-                    selected.setPassword(AES.encrypt(new String(pwdPassword.getPassword()),
-                            AES.getMasterPassword()));
-                    selected.setBankPin(String.valueOf(txtBankPin.getValue()));
-                    selected.setLampSkill((Skill) cbxLampSkill.getSelectedItem());
-                    selected.save();
+                    controller.saveAccount(
+                            selected,
+                            txtUsername.getText(),
+                            pwdPassword.getPassword().toString(),
+                            (Integer)(txtBankPin.getValue()),
+                            (Skill) cbxLampSkill.getSelectedItem()
+                    );
                     initList();
                 }
             }
