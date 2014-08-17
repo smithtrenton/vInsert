@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 /**
  * @author const_
  * @author A_C
+ * @author InvokeStatic
  */
 public final class UnlockView extends JDialog {
     private final JPasswordField pwdPassword;
