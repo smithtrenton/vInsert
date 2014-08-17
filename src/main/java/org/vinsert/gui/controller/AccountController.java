@@ -47,10 +47,6 @@ public final class AccountController extends Controller<AccountView> {
         getComponent().setVisible(true);
     }
 
-    public void onCancel() {
-        getComponent().dispose();
-    }
-
     public void onOk() {
         for (Account account : getComponent().getAccounts()) {
             if (account.isPurgeMarker()) {
@@ -59,6 +55,7 @@ public final class AccountController extends Controller<AccountView> {
             }
 
             account.save();
+            getComponent().dispose();
         }
     }
 }

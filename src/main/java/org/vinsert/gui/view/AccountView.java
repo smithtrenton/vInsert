@@ -3,6 +3,7 @@ package org.vinsert.gui.view;
 import org.vinsert.api.wrappers.Skill;
 import org.vinsert.core.model.Account;
 import org.vinsert.gui.controller.AccountController;
+import org.vinsert.gui.icons.Icons;
 import org.vinsert.util.AES;
 
 import javax.swing.*;
@@ -22,7 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * @author const_
  * @author A_C
  */
-public final class AccountView extends JFrame {
+public final class AccountView extends DialogView {
     private JList<Account> lstAccounts;
     private JTextField txtUsername;
     private JPasswordField pwdPassword;
@@ -31,148 +32,42 @@ public final class AccountView extends JFrame {
 
     public AccountView(final AccountController controller) {
         setTitle("Account Manager - vInsert");
-        getContentPane().setLayout(null);
+        BorderLayout lytBody = new BorderLayout();
+        setLayout(lytBody);
+        //setResizable(false);
 
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(6, 32, 172, 180);
-        getContentPane().add(scrollPane);
+        // ------- HEADER -------
+        add(this.generateHeader("Account Manager"), BorderLayout.NORTH);
 
-        lstAccounts = new JList<Account>();
-        lstAccounts.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                Account value = lstAccounts.getSelectedValue();
-                if (value != null) {
-                    txtUsername.setText(value.getUsername());
-                    pwdPassword.setText(value.getPassword());
-                    txtBankPin.setText(value.getBankPin());
-                    cbxLampSkill.setSelectedItem(value.getLampSkill());
-                }
-            }
-        });
-        scrollPane.setViewportView(lstAccounts);
+        // ------- BODY -------
 
-        JLabel lblAccounts = new JLabel("Accounts:");
-        lblAccounts.setBounds(6, 6, 81, 16);
-        getContentPane().add(lblAccounts);
-
-        JPanel pnlAccount = new JPanel();
-        pnlAccount.setBorder(new LineBorder(new Color(0, 0, 0)));
-        pnlAccount.setBounds(190, 32, 404, 180);
-        getContentPane().add(pnlAccount);
-        pnlAccount.setLayout(null);
-
-        JLabel lblUsername = new JLabel("Username:");
-        lblUsername.setBounds(12, 12, 90, 15);
-        pnlAccount.add(lblUsername);
-
-        JLabel lblPassword = new JLabel("Password:");
-        lblPassword.setBounds(12, 39, 90, 15);
-        pnlAccount.add(lblPassword);
-
-        txtUsername = new JTextField();
-        txtUsername.setBounds(120, 10, 200, 19);
-        pnlAccount.add(txtUsername);
-        txtUsername.setColumns(10);
-
-        pwdPassword = new JPasswordField();
-        pwdPassword.setText("Password");
-        pwdPassword.setBounds(120, 37, 200, 19);
-        pnlAccount.add(pwdPassword);
-
-        JLabel lblBankPin = new JLabel("Bank PIN:");
-        lblBankPin.setBounds(12, 66, 60, 15);
-        pnlAccount.add(lblBankPin);
-
-        txtBankPin = new JTextField();
-        txtBankPin.setText("Bank PIN");
-        txtBankPin.setBounds(120, 64, 200, 19);
-        pnlAccount.add(txtBankPin);
-        txtBankPin.setColumns(10);
-
-        JLabel lblLampSkill = new JLabel("Lamp skill:");
-        lblLampSkill.setBounds(12, 93, 90, 15);
-        pnlAccount.add(lblLampSkill);
-
-        cbxLampSkill = new JComboBox<Skill>();
-        cbxLampSkill.setBounds(120, 88, 200, 24);
-        for (Skill skill : Skill.values()) {
-            cbxLampSkill.addItem(skill);
-        }
-        pnlAccount.add(cbxLampSkill);
-
-        JButton btnSave = new JButton("Save");
-        btnSave.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Account selected = lstAccounts.getSelectedValue();
-                if (selected != null) {
-                    selected.setUsername(txtUsername.getText());
-                    selected.setPassword(AES.encrypt(new String(pwdPassword.getPassword()),
-                            AES.getMasterPassword()));
-                    selected.setBankPin(txtBankPin.getText());
-                    selected.setLampSkill((Skill) cbxLampSkill.getSelectedItem());
-                    selected.save();
-                    initList();
-                }
-            }
-        });
-        btnSave.setBounds(12, 143, 90, 25);
-        pnlAccount.add(btnSave);
-
-        JButton btnDelete = new JButton("Delete");
-        btnDelete.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Account selected = lstAccounts.getSelectedValue();
-                if (selected != null) {
-                    Account.getAll().remove(selected);
-                    initList();
-                    lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
-                }
-            }
-        });
-        btnDelete.setBounds(108, 143, 90, 25);
-        pnlAccount.add(btnDelete);
-
-        JLabel lblAccountInfo = new JLabel("Account info:");
-        lblAccountInfo.setBounds(190, 7, 110, 15);
-        getContentPane().add(lblAccountInfo);
+        // ------- FOOTER -------
+        JPanel footer = new JPanel();
+        footer.setLayout(new BorderLayout(20, 20));
+        JPanel footerButtons = new JPanel();
 
         JButton btnOk = new JButton("OK");
         btnOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.onOk();
-                dispose();
             }
         });
-        btnOk.setBounds(513, 222, 81, 25);
-        getContentPane().add(btnOk);
+
+        footerButtons.add(btnOk, BorderLayout.EAST);
 
         JButton btnCancel = new JButton("Cancel");
         btnCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.onCancel();
+                dispose();
             }
         });
-        btnCancel.setBounds(395, 222, 106, 25);
-        getContentPane().add(btnCancel);
+        footerButtons.add(btnCancel, BorderLayout.WEST);
 
-        JButton lblAddNewAccount = new JButton("Add new account");
-        lblAddNewAccount.setForeground(new Color(30, 144, 255));
-        lblAddNewAccount.setBounds(6, 215, 172, 15);
-        lblAddNewAccount.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Account account = new Account("Username", "Password", "0000");
-                account.save();
-                initList();
-                lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
-            }
-        });
-        getContentPane().add(lblAddNewAccount);
+        footer.add(footerButtons, BorderLayout.EAST);
+        add(footer, BorderLayout.SOUTH);
+
         setSize(610, 290);
     }
 
