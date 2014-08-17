@@ -8,7 +8,7 @@ import java.awt.*;
 /**
  * @author InvokeStatic
  */
-public class DialogView extends JFrame {
+public class DialogHelper {
 
     public JPanel generateHeader(String title) {
         JPanel header = new JPanel();

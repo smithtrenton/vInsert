@@ -27,6 +27,7 @@ public final class UnlockView extends JDialog {
         setModal(true);
         setResizable(false);
 
+        // Todo: port to dialoghelper
         JPanel header = new JPanel();
         header.setLayout(null);
         header.setSize(465, 50);
