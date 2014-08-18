@@ -1,9 +1,11 @@
 package org.vinsert.gui.controller;
 
+import org.vinsert.api.wrappers.Skill;
 import org.vinsert.core.model.Account;
 import org.vinsert.gui.Controller;
 import org.vinsert.gui.ControllerManager;
 import org.vinsert.gui.view.AccountView;
+import org.vinsert.util.AES;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,8 +49,18 @@ public final class AccountController extends Controller<AccountView> {
         getComponent().setVisible(true);
     }
 
-    public void onCancel() {
-        getComponent().dispose();
+    public void addNewAccount() {
+        Account account = new Account("Username", "Password", "0000");
+        account.save();
+    }
+
+    public void saveAccount(Account selected, String username, String password, int bankPin, Skill lampSkill) {
+        selected.setUsername(username);
+        selected.setPassword(AES.encrypt(new String(password),
+                AES.getMasterPassword()));
+        selected.setBankPin(String.valueOf(bankPin));
+        selected.setLampSkill(lampSkill);
+        selected.save();
     }
 
     public void onOk() {
@@ -59,6 +71,7 @@ public final class AccountController extends Controller<AccountView> {
             }
 
             account.save();
+            getComponent().dispose();
         }
     }
 }

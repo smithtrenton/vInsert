@@ -2,6 +2,7 @@ package org.vinsert.gui.view;
 
 import org.vinsert.core.model.Property;
 import org.vinsert.gui.controller.UnlockController;
+import org.vinsert.gui.icons.Icons;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,10 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 /**
  * @author const_
  * @author A_C
+ * @author InvokeStatic
  */
 public final class UnlockView extends JDialog {
     private final JPasswordField pwdPassword;
@@ -20,32 +23,41 @@ public final class UnlockView extends JDialog {
 
     public UnlockView(final UnlockController unlockController) {
         setLayout(null);
-        setSize(465, 230);
+        setSize(465, 260);
         setModal(true);
+        setResizable(false);
 
-        JLabel lblUnlockDatabase = new JLabel("Unlock database");
+        // Todo: port to dialoghelper
+        JPanel header = new JPanel();
+        header.setLayout(null);
+        header.setSize(465, 50);
+        header.setBackground(new Color(10, 10, 10));
+
+        JLabel lblLogo = new JLabel(Icons.LOGO30);
+        lblLogo.setBounds(335, 13, 95, 30);
+        header.add(lblLogo);
+
+        JLabel lblUnlockDatabase = new JLabel("Unlock Database");
         lblUnlockDatabase.setFont(new Font("Arial", Font.PLAIN, 24));
-        lblUnlockDatabase.setBounds(6, 6, 187, 50);
-        add(lblUnlockDatabase);
+        lblUnlockDatabase.setBounds(20, 1, 300, 50);
+        header.add(lblUnlockDatabase);
+        add(header);
 
         if (Property.get("cryptomsg") == null) {
-            lbltoProtectYour = new JLabel("<html>To protect your account data and privacy we encrypt some of the information stored on your computer. Please set a password encrypt the data.");
+            lblUnlockDatabase.setText("Set Database Password");
+            lbltoProtectYour = new JLabel("<html><p>To protect your account data and privacy, we encrypt some of the information stored on your computer. Please set a password encrypt the data.</p><br/><p><strong>Note:</strong> Your data cannot be decrypted if you lose this password.</p>");
         } else {
-            lbltoProtectYour = new JLabel("<html>To protect your account data and privacy we encrypt some of the information stored on your computer. Please enter the password used to previously encrypt the data.");
+            lbltoProtectYour = new JLabel("<html><p>To protect your account data and privacy, we encrypt some of the information stored on your computer. Please enter the password used to previously encrypt the data.</p>");
         }
-        lbltoProtectYour.setBounds(31, 46, 419, 50);
+        lbltoProtectYour.setBounds(20, 60, 415, 75);
         add(lbltoProtectYour);
 
-        JSeparator separator = new JSeparator();
-        separator.setBounds(0, 101, 463, 18);
-        add(separator);
-
         final JLabel lblDatabasePassword = new JLabel("Database password:");
-        lblDatabasePassword.setBounds(20, 118, 133, 16);
+        lblDatabasePassword.setBounds(20, 148, 133, 16);
         add(lblDatabasePassword);
 
         pwdPassword = new JPasswordField();
-        pwdPassword.setBounds(179, 112, 265, 28);
+        pwdPassword.setBounds(180, 142, 255, 28);
         pwdPassword.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -59,17 +71,21 @@ public final class UnlockView extends JDialog {
         add(pwdPassword);
 
         JButton btnUnlock = new JButton("Unlock");
-        btnUnlock.setBounds(361, 152, 83, 29);
+        if (Property.get("cryptomsg") == null) {
+            btnUnlock.setText("Set");
+        }
+        btnUnlock.setBounds(351, 182, 83, 29);
         btnUnlock.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 unlockController.unlock();
             }
         });
+        btnUnlock.setSelected(true);
         add(btnUnlock);
 
         JButton btnCancel = new JButton("Cancel");
-        btnCancel.setBounds(266, 152, 83, 29);
+        btnCancel.setBounds(256, 182, 83, 29);
         btnCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -77,6 +93,8 @@ public final class UnlockView extends JDialog {
             }
         });
         add(btnCancel);
+
+
     }
 
     /**

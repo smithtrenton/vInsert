@@ -6,7 +6,6 @@ import org.vinsert.gui.controller.AccountController;
 import org.vinsert.util.AES;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -26,16 +25,43 @@ public final class AccountView extends JFrame {
     private JList<Account> lstAccounts;
     private JTextField txtUsername;
     private JPasswordField pwdPassword;
-    private JTextField txtBankPin;
+    private JSpinner txtBankPin;
     private JComboBox<Skill> cbxLampSkill;
+
 
     public AccountView(final AccountController controller) {
         setTitle("Account Manager - vInsert");
-        getContentPane().setLayout(null);
+        BorderLayout lytBody = new BorderLayout();
+        setLayout(lytBody);
+        setResizable(false);
+
+        // ------- HEADER -------
+        add(new DialogHelper().generateHeader("Account Manager"), BorderLayout.NORTH);
+
+        // ------- BODY -------
+        JPanel body = new JPanel();
+        body.setLayout(new BorderLayout(20, 20));
+        body.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel pnlList = new JPanel();
+        pnlList.setLayout(new BorderLayout());
+        body.add(pnlList, BorderLayout.WEST);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(6, 32, 172, 180);
-        getContentPane().add(scrollPane);
+        pnlList.add(scrollPane, BorderLayout.CENTER);
+
+        JButton btnAddNewAccount = new JButton("Add new account");
+        btnAddNewAccount.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                controller.addNewAccount();
+                initList();
+                lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
+            }
+        });
+        pnlList.add(btnAddNewAccount, BorderLayout.SOUTH);
+
+
 
         lstAccounts = new JList<Account>();
         lstAccounts.addListSelectionListener(new ListSelectionListener() {
@@ -45,61 +71,42 @@ public final class AccountView extends JFrame {
                 if (value != null) {
                     txtUsername.setText(value.getUsername());
                     pwdPassword.setText(value.getPassword());
-                    txtBankPin.setText(value.getBankPin());
+
+                    txtBankPin.setValue(Integer.valueOf(value.getBankPin()));
                     cbxLampSkill.setSelectedItem(value.getLampSkill());
                 }
             }
         });
         scrollPane.setViewportView(lstAccounts);
 
-        JLabel lblAccounts = new JLabel("Accounts:");
-        lblAccounts.setBounds(6, 6, 81, 16);
-        getContentPane().add(lblAccounts);
-
         JPanel pnlAccount = new JPanel();
-        pnlAccount.setBorder(new LineBorder(new Color(0, 0, 0)));
-        pnlAccount.setBounds(190, 32, 404, 180);
-        getContentPane().add(pnlAccount);
-        pnlAccount.setLayout(null);
+        body.add(pnlAccount, BorderLayout.CENTER);
+        GroupLayout lytAccount = new GroupLayout(pnlAccount);
+        pnlAccount.setLayout(lytAccount);
 
-        JLabel lblUsername = new JLabel("Username:");
-        lblUsername.setBounds(12, 12, 90, 15);
-        pnlAccount.add(lblUsername);
-
-        JLabel lblPassword = new JLabel("Password:");
-        lblPassword.setBounds(12, 39, 90, 15);
-        pnlAccount.add(lblPassword);
+        lytAccount.setAutoCreateGaps(true);
+        lytAccount.setAutoCreateContainerGaps(true);
 
         txtUsername = new JTextField();
-        txtUsername.setBounds(120, 10, 200, 19);
-        pnlAccount.add(txtUsername);
-        txtUsername.setColumns(10);
-
         pwdPassword = new JPasswordField();
-        pwdPassword.setText("Password");
-        pwdPassword.setBounds(120, 37, 200, 19);
-        pnlAccount.add(pwdPassword);
+        txtBankPin = new JSpinner(new SpinnerNumberModel(0000,0000,9999,1));
 
-        JLabel lblBankPin = new JLabel("Bank PIN:");
-        lblBankPin.setBounds(12, 66, 60, 15);
-        pnlAccount.add(lblBankPin);
-
-        txtBankPin = new JTextField();
-        txtBankPin.setText("Bank PIN");
-        txtBankPin.setBounds(120, 64, 200, 19);
-        pnlAccount.add(txtBankPin);
-        txtBankPin.setColumns(10);
-
-        JLabel lblLampSkill = new JLabel("Lamp skill:");
-        lblLampSkill.setBounds(12, 93, 90, 15);
-        pnlAccount.add(lblLampSkill);
 
         cbxLampSkill = new JComboBox<Skill>();
-        cbxLampSkill.setBounds(120, 88, 200, 24);
+
         for (Skill skill : Skill.values()) {
             cbxLampSkill.addItem(skill);
         }
-        pnlAccount.add(cbxLampSkill);
+
+        JLabel lblUsername = new JLabel("Username");
+        JLabel lblPassword = new JLabel("Password");
+        JLabel lblBankPin = new JLabel("Bank Pin");
+        JLabel lblLampSkill = new JLabel("Lamp Skill");
+
+        JPanel pnlNull = new JPanel();
+
+        JPanel pnlAccFooter = new JPanel();
+        pnlAccFooter.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
         JButton btnSave = new JButton("Save");
         btnSave.addActionListener(new ActionListener() {
@@ -107,18 +114,18 @@ public final class AccountView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Account selected = lstAccounts.getSelectedValue();
                 if (selected != null) {
-                    selected.setUsername(txtUsername.getText());
-                    selected.setPassword(AES.encrypt(new String(pwdPassword.getPassword()),
-                            AES.getMasterPassword()));
-                    selected.setBankPin(txtBankPin.getText());
-                    selected.setLampSkill((Skill) cbxLampSkill.getSelectedItem());
-                    selected.save();
+                    controller.saveAccount(
+                            selected,
+                            txtUsername.getText(),
+                            pwdPassword.getPassword().toString(),
+                            (Integer)(txtBankPin.getValue()),
+                            (Skill) cbxLampSkill.getSelectedItem()
+                    );
                     initList();
                 }
             }
         });
-        btnSave.setBounds(12, 143, 90, 25);
-        pnlAccount.add(btnSave);
+        btnSave.setMargin(new Insets(0,0,0,5));
 
         JButton btnDelete = new JButton("Delete");
         btnDelete.addActionListener(new ActionListener() {
@@ -132,51 +139,82 @@ public final class AccountView extends JFrame {
                 }
             }
         });
-        btnDelete.setBounds(108, 143, 90, 25);
-        pnlAccount.add(btnDelete);
 
-        JLabel lblAccountInfo = new JLabel("Account info:");
-        lblAccountInfo.setBounds(190, 7, 110, 15);
-        getContentPane().add(lblAccountInfo);
+        pnlAccFooter.add(btnSave);
+        pnlAccFooter.add(btnDelete);
+
+        GroupLayout.SequentialGroup lytAccountHorizontal = lytAccount.createSequentialGroup();
+
+        lytAccountHorizontal.addGroup(lytAccount.createParallelGroup().
+                addComponent(lblUsername).
+                addComponent(lblPassword).
+                addComponent(lblBankPin).
+                addComponent(lblLampSkill).
+                addComponent(pnlNull));
+        lytAccountHorizontal.addGroup(lytAccount.createParallelGroup().
+                addComponent(txtUsername).
+                addComponent(pwdPassword).
+                addComponent(txtBankPin).
+                addComponent(cbxLampSkill).
+                addComponent(pnlAccFooter));
+        lytAccount.setHorizontalGroup(lytAccountHorizontal);
+
+        GroupLayout.SequentialGroup lytAccountVertical = lytAccount.createSequentialGroup();
+
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(lblUsername).
+                addComponent(txtUsername));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(lblPassword).
+                addComponent(pwdPassword));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(lblBankPin).
+                addComponent(txtBankPin));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(lblLampSkill).
+                addComponent(cbxLampSkill));
+        lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
+                addComponent(pnlNull).
+                addComponent(pnlAccFooter));
+        lytAccount.setVerticalGroup(lytAccountVertical);
+
+
+        add(body, BorderLayout.CENTER);
+
+        // ------- FOOTER -------
+        JPanel footer = new JPanel();
+        footer.setLayout(new BorderLayout());
+        footer.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        JPanel footerButtons = new JPanel();
+
+        footer.add(new JSeparator(), BorderLayout.NORTH);
 
         JButton btnOk = new JButton("OK");
         btnOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.onOk();
-                dispose();
             }
         });
-        btnOk.setBounds(513, 222, 81, 25);
-        getContentPane().add(btnOk);
+
+        footerButtons.add(btnOk, BorderLayout.EAST);
 
         JButton btnCancel = new JButton("Cancel");
         btnCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.onCancel();
+                dispose();
             }
         });
-        btnCancel.setBounds(395, 222, 106, 25);
-        getContentPane().add(btnCancel);
+        footerButtons.add(btnCancel, BorderLayout.WEST);
 
-        JButton lblAddNewAccount = new JButton("Add new account");
-        lblAddNewAccount.setForeground(new Color(30, 144, 255));
-        lblAddNewAccount.setBounds(6, 215, 172, 15);
-        lblAddNewAccount.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Account account = new Account("Username", "Password", "0000");
-                account.save();
-                initList();
-                lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
-            }
-        });
-        getContentPane().add(lblAddNewAccount);
-        setSize(610, 290);
+        footer.add(footerButtons, BorderLayout.EAST);
+        add(footer, BorderLayout.SOUTH);
+
+        pack();
     }
 
-    private void initList() {
+    public void initList() {
         lstAccounts.setListData(Account.getAll().toArray(new Account[Account.getAll().size()]));
         lstAccounts.repaint();
     }
