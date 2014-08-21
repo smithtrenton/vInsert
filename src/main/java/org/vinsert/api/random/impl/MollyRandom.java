@@ -1,5 +1,6 @@
 package org.vinsert.api.random.impl;
 
+import org.vinsert.api.collection.Filter;
 import org.vinsert.api.collection.StatePredicate;
 import org.vinsert.api.collection.queries.GameObjectQuery;
 import org.vinsert.api.event.EventHandler;
@@ -12,156 +13,192 @@ import org.vinsert.api.util.Utilities;
 import org.vinsert.api.wrappers.GameObject;
 import org.vinsert.api.wrappers.Npc;
 import org.vinsert.api.wrappers.Tile;
+import org.vinsert.api.wrappers.Widget;
 
 import java.awt.*;
 
 @LoginRequired
-@RandomManifest(name = "Molly Random Solver", author = "hancock", version = 0.1)
+@RandomManifest(name = "Molly Random Solver", author = "ande, hancock", version = 0.1)
 public final class MollyRandom extends RandomSolver {
 
-    private Npc mollyEntity;
+    private Npc molly, suspect;
+    private GameObject claw, controlPanel;
     private int modelId = 0;
-    boolean done = false;
-    Tile startTile = null;
-    Tile suspectTile = null;
-    boolean reach = false;
+    private boolean usingControls = false, inRoom = false, done = false;
+    private int suspectX, suspectY, clawX, clawY;
+    private String debug = "";
 
     @Override
     public boolean canRun() {
-        if (!npcs.find("Molly").exists() && !npcs.find("Suspect").exists()) {
-            startTile = null;
-            suspectTile = null;
-            modelId = 0;
-            mollyEntity = null;
-            reach = false;
-            done = false;
-        }
         return npcs.find("Molly").single() != null || npcs.find("Suspect").single() != null;
     }
 
     @Override
+    public void reset(){
+        molly = null;
+        suspect = null;
+        claw = null;
+        controlPanel = null;
+        modelId = 0;
+        usingControls = false;
+        inRoom = false;
+        done = false;
+        debug = "";
+    }
+
+    @Override
     public int run() {
-        if (!player.isIdle()) {
-            return 200;
-        }
-        if (modelId == 0) {
-            mollyEntity = npcs.find("Molly").single();
-            if (mollyEntity != null) {
-                modelId = mollyEntity.getComposite().getModelIds()[0];
-            }
-            return 100;
-        }
-        if (widgets.canContinue()) {
-            widgets.clickContinue();
-            return 500;
-        }
-        if (widgets.find().text("Yes, I know").visible().exists()) {
-            widgets.find().text("Yes, I know").visible().single().click(true);
-            return 400;
-        }
-        if (done && !reach) {
-            switch (npcs.find("Molly").single().interact("Talk-to")) {
-                case OK:
-                    Utilities.sleepUntil(new StatePredicate() {
-                        @Override
-                        public boolean apply() {
-                            return player.isIdle();
-                        }
-                    }, 2000);
-                    return 500;
-                default:
-                    reach = true;
-            }
-            return 500;
-        }
-        GameObject panel = objects.find("control panel").single();
-        if (panel.distanceTo(player.getTile()) > 2 && (reach ||
-                npcs.find("Molly").distance(4).exists()) || reach || done) {
-            GameObjectQuery doorQ = objects.find("Door");
-            if (doorQ.exists()) {
-                switch (doorQ.single().interact("Open")) {
-                    case OK:
-                        reach = false;
-                        return 200;
-                    default:
-                        return 200;
+        if(!done) {
+            controlPanel = objects.find("Control panel").single();
+            usingControls = widgets.find().group(240).single() != null;
+            claw = objects.find("Evil claw").single();
+            suspect = npcs.find().filter(new Filter<Npc>() {
+                @Override
+                public boolean accept(Npc acceptable) {
+                    return acceptable.getComposite().getModelIds()[0] == modelId;
                 }
-            }
-        }
-        if (!done) {
-            if (widgets.getGroup(240) == null ||
-                    !widgets.getGroup(240).isValid()) {
-                panel.interact("Use");
-                return 400;
-            }
-            GameObject ob = objects.find("Evil claw").single();
-            if (ob == null) {
-                return 500;
-            }
-            startTile = ob.getTile();
-            if (widgets.getGroup(240) != null && widgets.getGroup(240).isValid()) {
-                for (Npc n : npcs.find()) {
-                    if (n.getComposite().getModelIds()[0] == modelId) {
-                        suspectTile = n.getTile();
-                    }
-                }
-                if (suspectTile != null) {
-                    if (startTile != null) {
-                        if (startTile.getX() - suspectTile.getX() > 0) {
-                            widgets.find(240, 32).single().interact("Ok");
-                        } else if (startTile.getX() - suspectTile.getX() < 0) {
-                            widgets.find(240, 31).single().interact("Ok");
+            }).single();
 
-                        } else if (startTile.getY() - suspectTile.getY() > 0) {
-                            widgets.find(240, 29).single().interact("Ok");
-                        } else if (startTile.getY() - suspectTile.getY() < 0) {
-                            widgets.find(240, 30).single().interact("Ok");
-                        } else {
-                            widgets.find(240, 24).single().interact("Ok");
-                        }
-
-                    }
+            if (modelId == 0) {
+                debug = "Getting model id";
+                molly = npcs.find("Molly").single();
+                if (molly != null) {
+                    modelId = molly.getComposite().getModelIds()[0];
                 }
-            }
-        } else {
-            if (mollyEntity != null && walking.canReach(mollyEntity.getTile())) {
-                if (widgets.canContinue()) {
-                    widgets.clickContinue();
-                } else {
-                    switch (mollyEntity.interact("talk-to")) {
+            } else if (!inRoom) {
+                debug = "Entering room";
+                GameObject door = objects.find("Door").single();
+                if (door.isValid()) {
+                    switch (door.interact("Open")) {
                         case NOT_ON_SCREEN:
-                            camera.turnTo(mollyEntity);
+                            camera.turnTo(door);
                             break;
+                    }
+                    Utilities.sleep(1200,1500);
+                }
+                while (inDialogue()) {
+                    completeDialogue();
+                }
+                if (walking.canReach(controlPanel)) {
+                    inRoom = true;
+                }
+            }
 
+            if (inRoom) {
+                debug = "Catching Evil Twin";
+                catchTwin();
+            }
+
+        }else{
+            debug = "Finishing";
+            molly = npcs.find("Molly").single();
+            if(molly != null) {
+                if (!walking.canReach(molly)) {
+                    GameObject door = objects.find("Door").single();
+                    if (door.isValid()) {
+                        switch (door.interact("Open")) {
+                            case NOT_ON_SCREEN:
+                                camera.turnTo(door);
+                                break;
+                        }
+                        Utilities.sleep(1200);
+                    }
+                } else {
+                    molly.interact("Talk-to");
+                    while (inDialogue()) {
+                        completeDialogue();
                     }
                 }
             }
         }
-        return 600;
+        return 200;
+    }
+
+    public void catchTwin(){
+        if(suspect != null) {
+            suspectX = suspect.getX();
+            suspectY = suspect.getY();
+        }
+        if(claw != null) {
+            clawX = claw.getX();
+            clawY = claw.getY();
+        }
+
+        if(controlPanel != null && !usingControls){
+            switch (controlPanel.interact("Use")){
+                case NOT_ON_SCREEN:
+                    camera.turnTo(controlPanel);
+                    break;
+            }
+        }else{
+            if(suspectX - clawX > 0){
+                useControl("left");
+            }else if(suspectX - clawX < 0){
+                useControl("right");
+            }
+
+            if(suspectY - clawY > 0){
+                useControl("down");
+            }else if(suspectY - clawY < 0){
+                useControl("up");
+            }
+            if(clawX == suspectX && clawY == suspectY){
+                useControl("catch");
+            }
+        }
+    }
+
+    public void useControl(String direction){
+        switch (direction){
+            case "up":
+                widgets.find(240,6).single().interact("Ok");
+                break;
+            case "down":
+                widgets.find(240,11).single().interact("Ok");
+                break;
+            case "left":
+                widgets.find(240,16).single().interact("Ok");
+                break;
+            case "right":
+                widgets.find(240,21).single().interact("Ok");
+                break;
+            case "catch":
+                widgets.find(240,23).single().interact("Ok");
+                break;
+        }
+        Utilities.sleep(200);
+    }
+
+    public void completeDialogue(){
+        if(widgets.canContinue()){
+            widgets.clickContinue();
+            Utilities.sleep(600);
+        }
+        Widget option = widgets.find().text("Yes").single();
+        if(option != null && option.isValid()){
+            option.interact("Continue");
+        }
+    }
+
+    public boolean inDialogue(){
+        return widgets.find(241,0).single() != null || widgets.find(242,0).single() != null || widgets.canContinue() || widgets.find().text("Select an Option").single() != null;
     }
 
     @EventHandler
-    public void message(MessageEvent evt) {
-        if (evt.getMessage().contains("can't reach")) {
-            reach = true;
-        }
-        if (evt.getMessage().contains("You caught the evil")) {
+    public void onMessage(MessageEvent evt) {
+        if(evt.getMessage().equals("You caught the Evil twin!")){
             done = true;
-            reach = false;
         }
     }
 
     @EventHandler
     public void onPaint(PaintEvent event) {
         Graphics2D g = (Graphics2D) event.getGraphics();
-        if (suspectTile != null) {
-            g.drawString("my suspect", viewport.convert(suspectTile).x, viewport.convert(suspectTile).y);
-        }
-        if (startTile != null) {
-            g.drawString("my position", viewport.convert(startTile).x, viewport.convert(startTile).y);
-        }
-        g.drawString("Done: " + done, 10, 80);
+        g.setColor(Color.YELLOW);
+        g.drawString("Solving Molly.",10,80);
+        g.drawString(debug,10,100);
     }
+
 
 }
 
