@@ -32,8 +32,8 @@ public final class Npc extends Entity implements Wrapper<INpc> {
      */
     @Override
     public String getName() {
-        if (composite != null && composite.getName() != null) {
-            return composite.getName();
+        if (unwrap() != null && unwrap().getComposite() != null) {
+            return unwrap().getComposite().getName();
         }
         return "";
     }

@@ -68,14 +68,14 @@ public final class SkillsImpl implements Skills {
         if (skill == Skill.OVERALL) {
             int levels = 0;
             for (Skill skill1 : Skill.values()) {
-                levels += ctx.client.getSkillLevels()[skill1.getIndex()];
+                levels += ctx.client.getSkillBases()[skill1.getIndex()];
             }
             return levels;
         }
         if (skill == Skill.COMBAT) {
             return getCombatLevel(true);
         }
-        return ctx.client.getSkillLevels()[skill.getIndex()];
+        return ctx.client.getSkillBases()[skill.getIndex()];
     }
 
     /**
