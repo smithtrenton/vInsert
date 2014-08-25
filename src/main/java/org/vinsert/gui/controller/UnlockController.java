@@ -60,7 +60,7 @@ public final class UnlockController extends Controller<UnlockView> {
             AES.setMasterPassword(password);
             getComponent().dispose();
             UnlockController.decrypted = true;
-            ((MainController) get(MainController.class)).show();
+            get(MainController.class).show();
         } else {
             JOptionPane.showMessageDialog(getComponent(),
                     "Master password is incorrect, please try again.");

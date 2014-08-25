@@ -21,6 +21,6 @@ public final class AddTab extends JButton implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        ((MainController) ControllerManager.get(MainController.class)).openSession(false);
+        ControllerManager.get(MainController.class).openSession(false);
     }
 }

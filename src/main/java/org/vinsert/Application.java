@@ -46,8 +46,7 @@ public final class Application {
                     new UnlockController();
                     new WidgetDebugController();
                     new ConsoleController();
-                    ((UnlockController) ControllerManager
-                            .get(UnlockController.class)).show();
+                    ControllerManager.get(UnlockController.class).show();
                 }
             });
         } catch (InterruptedException | InvocationTargetException | UnsupportedLookAndFeelException e) {

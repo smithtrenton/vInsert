@@ -9,7 +9,6 @@ import org.vinsert.core.model.BreakConditionType;
 import org.vinsert.core.model.BreakProfile;
 import org.vinsert.gui.Controller;
 import org.vinsert.gui.ControllerManager;
-import org.vinsert.gui.view.ConditionCreatorView;
 import org.vinsert.gui.view.ProfileView;
 
 import javax.swing.*;
@@ -81,10 +80,8 @@ public final class ProfileController extends Controller<ProfileView> {
     }
 
     public void onAdd() {
-        ((ConditionCreatorController) get(ConditionCreatorController.class))
-                .show(this);
-        ((ConditionCreatorView)
-                get(ConditionCreatorController.class).getComponent()).reset();
+        get(ConditionCreatorController.class).show(this);
+        get(ConditionCreatorController.class).getComponent().reset();
     }
 
     public void onRemove() {
@@ -95,7 +92,7 @@ public final class ProfileController extends Controller<ProfileView> {
     }
 
     public void onLoad() {
-        ((ProfileLoaderController) get(ProfileLoaderController.class)).show(this);
+        get(ProfileLoaderController.class).show(this);
     }
 
     public void load(BreakProfile profile) {

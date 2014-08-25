@@ -40,11 +40,11 @@ public final class Environment implements Serializable {
     private void propertyChanged(String name, Object old, Object now) {
         eventBus.submit(new EnvironmentChangedEvent(name, old, now));
         if (now instanceof Account) {
-            MainController controller = (MainController) ControllerManager.get(MainController.class);
+            MainController controller = ControllerManager.get(MainController.class);
             for (AbstractTab tab : controller.getComponent().getTabs()) {
                 if (tab instanceof BotTab && ((BotTab) tab).getSession().getEnvironment().equals(this)) {
                     tab.setToolTipText(((Account) now).getUsername());
-                    ConsoleController controller1 = (ConsoleController) ControllerManager.get(ConsoleController.class);
+                    ConsoleController controller1 = ControllerManager.get(ConsoleController.class);
                     if (controller1.getSession() != null && controller1.getSession().equals(((BotTab) tab).getSession())) {
                         controller1.setName(((Account) now).getUsername());
                     }

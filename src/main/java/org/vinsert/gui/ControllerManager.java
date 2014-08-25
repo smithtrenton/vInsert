@@ -15,8 +15,8 @@ public final class ControllerManager {
 
     }
 
-    public static Controller get(Class<?> clazz) {
-        return CONTROLLER_MAP.get(clazz);
+    public static <T extends Controller> T get(Class<T> clazz) {
+        return (T) CONTROLLER_MAP.get(clazz);
     }
 
     public static void add(Class<?> clazz, Controller controller) {
