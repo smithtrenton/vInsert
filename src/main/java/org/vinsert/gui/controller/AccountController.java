@@ -9,6 +9,7 @@ import org.vinsert.util.AES;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 /**
  *
@@ -50,14 +51,19 @@ public final class AccountController extends Controller<AccountView> {
     }
 
     public void addNewAccount() {
-        Account account = new Account("Username", "Password", "0000");
+        Account account = new Account();
+        account.setUsername(getComponent().getUsername());
+        account.setPassword(AES.encrypt(getComponent().getPassword(), AES.getMasterPassword()));
+        account.setBankPin(getComponent().getBankPin());
+        account.setLampSkill(getComponent().getLampSkill());
         account.save();
     }
 
     public void saveAccount(Account selected, String username, String password, int bankPin, Skill lampSkill) {
         selected.setUsername(username);
-        selected.setPassword(AES.encrypt(new String(password),
-                AES.getMasterPassword()));
+        if (!password.equals(selected.getPassword())) {
+            selected.setPassword(AES.encrypt(password, AES.getMasterPassword()));
+        }
         selected.setBankPin(String.valueOf(bankPin));
         selected.setLampSkill(lampSkill);
         selected.save();
