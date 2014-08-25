@@ -204,7 +204,7 @@ public final class MainView extends JFrame {
     public void setSelectedTab(AbstractTab tab) {
         displayPanel.remove(0);
         displayPanel.add(tab.getPanel());
-        ((MainController) get(MainController.class)).refresh();
+        get(MainController.class).refresh();
         revalidate();
     }
 
@@ -224,7 +224,7 @@ public final class MainView extends JFrame {
         toolBarSep.setPreferredSize(new Dimension(toolBarSep.getWidth() - 28, 10));
         toolBarSep.setMinimumSize(new Dimension(toolBarSep.getWidth() - 28, 10));
         toolBar.add(toolBarSep, sepIndex + tabs.size());
-        ((MainController) get(MainController.class)).refresh();
+        get(MainController.class).refresh();
         revalidate();
     }
 

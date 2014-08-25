@@ -96,7 +96,7 @@ public final class LocalPlayer extends SceneNode {
      * @return max health
      */
     public int getMaxHealth() {
-        return ctx.skills.getLevel(Skill.HITPOINTS);
+        return ctx.skills.getBaseLevel(Skill.HITPOINTS);
     }
 
     /**

@@ -26,10 +26,10 @@ public abstract class AbstractTab extends JButton implements ActionListener {
 
     @Override
     public final void actionPerformed(ActionEvent e) {
-        for (AbstractTab tab : ((MainController) ControllerManager.get(MainController.class)).getComponent().getTabs()) {
+        for (AbstractTab tab : ControllerManager.get(MainController.class).getComponent().getTabs()) {
             tab.setEnabled(true);
         }
         setEnabled(false);
-        ((MainController) ControllerManager.get(MainController.class)).getComponent().setSelectedTab(this);
+        ControllerManager.get(MainController.class).getComponent().setSelectedTab(this);
     }
 }

@@ -107,7 +107,7 @@ public final class MainController extends Controller<MainView> {
         if (session != null) {
             AbstractScript script = session.getScriptManager().getScript();
             if (script == null) {
-                ((ScriptController) get(ScriptController.class)).show(session);
+                get(ScriptController.class).show(session);
             } else {
                 if (session.getState() == Session.State.PAUSED) {
                     session.setState(Session.State.ACTIVE);
@@ -133,7 +133,7 @@ public final class MainController extends Controller<MainView> {
         Session session = getSelectedSession();
         if (session != null) {
             if (!session.getBreakManager().hasBreaks()) {
-                ((ProfileController) get(ProfileController.class)).show(session);
+                get(ProfileController.class).show(session);
             } else {
                 session.getBreakManager().clearBreakConditions();
             }
@@ -251,11 +251,11 @@ public final class MainController extends Controller<MainView> {
     }
 
     public void showBreaks() {
-        ((ProfileController) get(ProfileController.class)).show(getSelectedSession());
+        get(ProfileController.class).show(getSelectedSession());
     }
 
     public void showAccounts() {
-        ((AccountController) get(AccountController.class)).show();
+        get(AccountController.class).show();
     }
 
     public void removeTab(final AppletView appletView) {

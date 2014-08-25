@@ -49,7 +49,7 @@ public final class ScriptManager {
                     script.onStart();
                 }
             });
-            ((MainController) get(MainController.class)).refresh();
+            get(MainController.class).refresh();
             spinUp.setDaemon(true);
             spinUp.start();
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public final class ScriptManager {
                     script = null;
                 }
             });
-            ((MainController) get(MainController.class)).refresh();
+            get(MainController.class).refresh();
             tearDown.setDaemon(true);
             tearDown.start();
         } catch (Exception e) {
