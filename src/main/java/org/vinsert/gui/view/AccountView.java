@@ -62,7 +62,6 @@ public final class AccountView extends JFrame {
         pnlList.add(btnAddNewAccount, BorderLayout.SOUTH);
 
 
-
         lstAccounts = new JList<Account>();
         lstAccounts.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -87,9 +86,9 @@ public final class AccountView extends JFrame {
         lytAccount.setAutoCreateGaps(true);
         lytAccount.setAutoCreateContainerGaps(true);
 
-        txtUsername = new JTextField();
+        txtUsername = new JTextField("Username");
         pwdPassword = new JPasswordField();
-        txtBankPin = new JSpinner(new SpinnerNumberModel(0000,0000,9999,1));
+        txtBankPin = new JSpinner(new SpinnerNumberModel(0000, 0000, 9999, 1));
 
 
         cbxLampSkill = new JComboBox<Skill>();
@@ -117,15 +116,20 @@ public final class AccountView extends JFrame {
                     controller.saveAccount(
                             selected,
                             txtUsername.getText(),
-                            pwdPassword.getPassword().toString(),
-                            (Integer)(txtBankPin.getValue()),
+                            new String(pwdPassword.getPassword()),
+                            (Integer) (txtBankPin.getValue()),
                             (Skill) cbxLampSkill.getSelectedItem()
                     );
                     initList();
+                    lstAccounts.setSelectedIndex(getFilteredList().indexOf(selected));
+                } else {
+                    controller.addNewAccount();
+                    initList();
+                    lstAccounts.setSelectedIndex(getFilteredList().size() - 1);
                 }
             }
         });
-        btnSave.setMargin(new Insets(0,0,0,5));
+        btnSave.setMargin(new Insets(0, 0, 0, 5));
 
         JButton btnDelete = new JButton("Delete");
         btnDelete.addActionListener(new ActionListener() {
@@ -241,5 +245,21 @@ public final class AccountView extends JFrame {
             accounts[i] = lstAccounts.getModel().getElementAt(i);
         }
         return accounts;
+    }
+
+    public String getUsername() {
+        return txtUsername.getText();
+    }
+
+    public String getPassword() {
+        return new String(pwdPassword.getPassword());
+    }
+
+    public String getBankPin() {
+        return String.valueOf(txtBankPin.getValue());
+    }
+
+    public Skill getLampSkill() {
+        return (Skill) cbxLampSkill.getSelectedItem();
     }
 }
