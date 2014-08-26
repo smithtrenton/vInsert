@@ -49,8 +49,9 @@ public final class MinimapImpl implements Minimap {
         int mapOffset = ctx.client.getMinimapOffset();
         int angle = ctx.client.getMinimapAngle() + mapScale & 0x7FF;
         int j = x * x + y * y;
-        if (j > 6400)
+        if (j > 6400) {
             return new Point(-1, -1);
+        }
         int sin = ctx.client.getSineTable()[angle] * 256 / (mapOffset + 256);
         int cos = ctx.client.getCosineTable()[angle] * 256 / (mapOffset + 256);
         xMap = y * sin + x * cos >> 16;
