@@ -64,7 +64,11 @@ public final class AccountController extends Controller<AccountView> {
         if (!password.equals(selected.getPassword())) {
             selected.setPassword(AES.encrypt(password, AES.getMasterPassword()));
         }
-        selected.setBankPin(String.valueOf(bankPin));
+        if(view.isUsingPin()) {
+            selected.setBankPin(String.valueOf(bankPin));
+        } else {
+            selected.setBankPin("0000");
+        }
         selected.setLampSkill(lampSkill);
         selected.save();
     }
