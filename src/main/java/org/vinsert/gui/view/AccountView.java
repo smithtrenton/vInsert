@@ -20,13 +20,15 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @author const_
  * @author A_C
+ * @author InvokeStatic
  */
-public final class AccountView extends JFrame {
+public final class AccountView extends JFrame implements ActionListener {
     private JList<Account> lstAccounts;
     private JTextField txtUsername;
     private JPasswordField pwdPassword;
     private JSpinner txtBankPin;
     private JComboBox<Skill> cbxLampSkill;
+    private JCheckBox usePin;
 
 
     public AccountView(final AccountController controller) {
@@ -70,7 +72,6 @@ public final class AccountView extends JFrame {
                 if (value != null) {
                     txtUsername.setText(value.getUsername());
                     pwdPassword.setText(value.getPassword());
-
                     txtBankPin.setValue(Integer.valueOf(value.getBankPin()));
                     cbxLampSkill.setSelectedItem(value.getLampSkill());
                 }
@@ -101,6 +102,22 @@ public final class AccountView extends JFrame {
         JLabel lblPassword = new JLabel("Password");
         JLabel lblBankPin = new JLabel("Bank Pin");
         JLabel lblLampSkill = new JLabel("Lamp Skill");
+
+        JPanel pnlBankPin = new JPanel();
+        pnlBankPin.setLayout(new FlowLayout());
+        pnlBankPin.add(txtBankPin);
+        usePin = new JCheckBox("Use Pin");
+        usePin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(usePin.isSelected()) {
+                    enableBankPin();
+                } else {
+                    disableBankPin();
+                }
+            }
+        });
+        pnlBankPin.add(usePin);
 
         JPanel pnlNull = new JPanel();
 
@@ -158,7 +175,7 @@ public final class AccountView extends JFrame {
         lytAccountHorizontal.addGroup(lytAccount.createParallelGroup().
                 addComponent(txtUsername).
                 addComponent(pwdPassword).
-                addComponent(txtBankPin).
+                addComponent(pnlBankPin).
                 addComponent(cbxLampSkill).
                 addComponent(pnlAccFooter));
         lytAccount.setHorizontalGroup(lytAccountHorizontal);
@@ -173,7 +190,7 @@ public final class AccountView extends JFrame {
                 addComponent(pwdPassword));
         lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
                 addComponent(lblBankPin).
-                addComponent(txtBankPin));
+                addComponent(pnlBankPin));
         lytAccountVertical.addGroup(lytAccount.createParallelGroup(GroupLayout.Alignment.BASELINE).
                 addComponent(lblLampSkill).
                 addComponent(cbxLampSkill));
@@ -261,5 +278,26 @@ public final class AccountView extends JFrame {
 
     public Skill getLampSkill() {
         return (Skill) cbxLampSkill.getSelectedItem();
+    }
+
+    public boolean isUsingPin() {
+        return usePin.isSelected();
+    }
+
+    public void enableBankPin() {
+        this.txtBankPin.setEnabled(true);
+        this.txtBankPin.setValue(0);
+        repaint();
+    }
+
+    public void disableBankPin() {
+        this.txtBankPin.setEnabled(false);
+        this.txtBankPin.setValue(0);
+        repaint();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.dispatchEvent(e);
     }
 }
