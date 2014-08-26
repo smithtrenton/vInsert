@@ -72,7 +72,12 @@ public final class AccountView extends JFrame implements ActionListener {
                 if (value != null) {
                     txtUsername.setText(value.getUsername());
                     pwdPassword.setText(value.getPassword());
-                    txtBankPin.setValue(Integer.valueOf(value.getBankPin()));
+                    if(value.getBankPin() == "0000") {
+                        disableBankPin();
+                    } else {
+                        txtBankPin.setValue(Integer.valueOf(value.getBankPin()));
+                        enableBankPin();
+                    }
                     cbxLampSkill.setSelectedItem(value.getLampSkill());
                 }
             }
