@@ -75,8 +75,8 @@ public final class AccountView extends JFrame implements ActionListener {
                     if(value.getBankPin() == "0000") {
                         disableBankPin();
                     } else {
-                        txtBankPin.setValue(Integer.valueOf(value.getBankPin()));
                         enableBankPin();
+                        txtBankPin.setValue(Integer.parseInt(value.getBankPin()));
                     }
                     cbxLampSkill.setSelectedItem(value.getLampSkill());
                 }
@@ -110,6 +110,7 @@ public final class AccountView extends JFrame implements ActionListener {
 
         JPanel pnlBankPin = new JPanel();
         pnlBankPin.setLayout(new FlowLayout());
+        pnlBankPin.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         pnlBankPin.add(txtBankPin);
         usePin = new JCheckBox("Use Pin");
         usePin.addActionListener(new ActionListener() {
@@ -290,12 +291,14 @@ public final class AccountView extends JFrame implements ActionListener {
     }
 
     public void enableBankPin() {
+        this.usePin.setSelected(true);
         this.txtBankPin.setEnabled(true);
         this.txtBankPin.setValue(0);
         repaint();
     }
 
     public void disableBankPin() {
+        this.usePin.setSelected(false);
         this.txtBankPin.setEnabled(false);
         this.txtBankPin.setValue(0);
         repaint();
