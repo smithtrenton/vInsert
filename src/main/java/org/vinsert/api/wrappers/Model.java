@@ -38,9 +38,9 @@ public final class Model extends Interactable implements Wrapper<IModel> {
     public Model(IModel wrapped) {
         this.wrapped = new WeakReference<>(wrapped);
         if (wrapped != null) {
-            this.trianglesX = wrapped.getTrianglesX();
-            this.trianglesY = wrapped.getTrianglesY();
-            this.trianglesZ = wrapped.getTrianglesZ();
+            this.trianglesX = wrapped.getTrianglesX().clone();
+            this.trianglesY = wrapped.getTrianglesY().clone();
+            this.trianglesZ = wrapped.getTrianglesZ().clone();
             this.verticesX = wrapped.getVerticesX().clone();
             this.verticesY = wrapped.getVerticesY().clone();
             this.verticesZ = wrapped.getVerticesZ().clone();
@@ -54,9 +54,9 @@ public final class Model extends Interactable implements Wrapper<IModel> {
         super(ctx);
         this.wrapped = new WeakReference<>(wrapped);
         if (wrapped != null) {
-            this.trianglesX = wrapped.getTrianglesX();
-            this.trianglesY = wrapped.getTrianglesY();
-            this.trianglesZ = wrapped.getTrianglesZ();
+            this.trianglesX = wrapped.getTrianglesX().clone();
+            this.trianglesY = wrapped.getTrianglesY().clone();
+            this.trianglesZ = wrapped.getTrianglesZ().clone();
             this.verticesX = wrapped.getVerticesX().clone();
             this.verticesY = wrapped.getVerticesY().clone();
             this.verticesZ = wrapped.getVerticesZ().clone();
@@ -73,9 +73,9 @@ public final class Model extends Interactable implements Wrapper<IModel> {
         super(ctx);
         this.wrapped = new WeakReference<>(wrapped);
         if (wrapped != null) {
-            this.trianglesX = wrapped.getTrianglesX();
-            this.trianglesY = wrapped.getTrianglesY();
-            this.trianglesZ = wrapped.getTrianglesZ();
+            this.trianglesX = wrapped.getTrianglesX().clone();
+            this.trianglesY = wrapped.getTrianglesY().clone();
+            this.trianglesZ = wrapped.getTrianglesZ().clone();
             this.verticesX = wrapped.getVerticesX().clone();
             this.verticesY = wrapped.getVerticesY().clone();
             this.verticesZ = wrapped.getVerticesZ().clone();
@@ -413,7 +413,6 @@ public final class Model extends Interactable implements Wrapper<IModel> {
 
     @Override
     public void setAllowed(boolean allowed) {
-        //context.session.toggleAllRender(allowed);
         unwrap().setRender(allowed);
     }
 
