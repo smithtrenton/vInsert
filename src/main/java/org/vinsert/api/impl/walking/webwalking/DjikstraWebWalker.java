@@ -5,7 +5,9 @@ import java.util.Collections;
 
 import org.vinsert.api.MethodContext;
 import org.vinsert.api.Walking.Direction;
+import org.vinsert.api.collection.StatePredicate;
 import org.vinsert.api.impl.walking.astar.AStar;
+import org.vinsert.api.util.Utilities;
 import org.vinsert.api.wrappers.Tile;
 
 /**
@@ -38,9 +40,23 @@ public class DjikstraWebWalker {
 		AStar astar = new AStar(ctx);
 		for (StaticWebNode node : path) {
 			Tile[] localPath = astar.generatePath(node.getTile(), true);
+			if(localPath == null){
+				return WalkingResult.NO_PATH;
+			}
 			ctx.walking.traverse(localPath, Direction.FORWARDS);
 		}
-
+		Tile[] localPath = astar.generatePath(finish, true);
+		if(localPath == null){
+			return WalkingResult.NO_PATH;
+		}
+		ctx.walking.traverse(localPath, Direction.FORWARDS);
+		Utilities.sleepUntil(new StatePredicate() {
+			
+			@Override
+			public boolean apply() {
+				return !ctx.player.isMoving();
+			}
+		}, 15000);
 		if (finish.distanceTo(ctx.player.getTile()) <= range) {
 			return WalkingResult.SUCCESS;
 		}
@@ -48,7 +64,7 @@ public class DjikstraWebWalker {
 		return WalkingResult.FAILED_WALKING;
 	}
 
-	public StaticWebNode[] calculateShortestNodePath(Tile start, Tile finish) {
+	private StaticWebNode[] calculateShortestNodePath(Tile start, Tile finish) {
 		if (start == null || finish == null) {
 			return null;
 		}
