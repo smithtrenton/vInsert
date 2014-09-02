@@ -11,23 +11,25 @@ import org.vinsert.api.wrappers.Tile;
 
 public class DijkstraFinder {
 
-	static final int BLOCKED_NORTHWEST = 1 | 0x200;
-	static final int BLOCKED_SOUTHWEST = 64 | 0x8000;
-	static final int BLOCKED_NORTHEAST = 4 | 0x800;
-	static final int BLOCKED_SOUTHEAST = 16 | 0x2000;
+	static final int BLOCKED_NORTHWEST = 1;
+	static final int BLOCKED_SOUTHWEST = 64;
+	static final int BLOCKED_NORTHEAST = 4;
+	static final int BLOCKED_SOUTHEAST = 16;
 
 	static final int NON_WALKABLE = 256 | 0x200000 | 0x40000;
 
-	static final int BLOCKED_WEST = 128 | 0x10000;
-	static final int BLOCKED_EAST = 8 | 0x1000;
-	static final int BLOCKED_NORTH = 2 | 0x400;
-	static final int BLOCKED_SOUTH = 32 | 0x4000;
+	static final int BLOCKED_WEST = 128;
+	static final int BLOCKED_EAST = 8;
+	static final int BLOCKED_NORTH = 2;
+	static final int BLOCKED_SOUTH = 32;
 
 	private MethodContext ctx;
 	private RSLocalMap sceneMap;
 
 	/**
-	 * A class used to find the shortest path between tiles and to find the closest objects relative to tiles
+	 * A class used to find the shortest path between tiles and to find the
+	 * closest objects relative to tiles
+	 * 
 	 * @param ctx
 	 */
 	public DijkstraFinder(MethodContext ctx) {
@@ -35,9 +37,8 @@ public class DijkstraFinder {
 		sceneMap = new RSLocalMap(ctx, ctx.client.getMaps());
 	}
 
-	public GameObject[] findClosestObjectsOnMyPlane(Filter<GameObject> filter) {
-		ArrayList<GameObject> objects = new ArrayList<GameObject>();
-		if(ctx == null || ctx.player == null | ctx.client == null){
+	public GameObject findClosestObjectOnMyPlane(Filter<GameObject> filter) {
+		if (ctx == null || ctx.player == null | ctx.client == null) {
 			return null;
 		}
 
@@ -49,55 +50,50 @@ public class DijkstraFinder {
 			Collections.sort(openList);
 			DijkstraNode current = openList.get(0);
 			if (current.z == ctx.client.getPlane()) {
-				ArrayList<GameObject> a;
-				if ((a = getObjectsAtTile(current.getTile(), filter)) != null) {
-					if (!objects.contains(a))
-						objects.addAll(a);
-				} else if ((a = getObjectsAtTile(new Tile(current.getPoint().x + 1 + ctx.client.getBaseX(), current.getPoint().y + ctx.client.getBaseY(), ctx.client.getPlane()),
+				GameObject a;
+				if ((a = getObjectAtTile(current.getTile(), filter)) != null) {
+					return a;
+				} else if ((a = getObjectAtTile(new Tile(current.getPoint().x + 1 + ctx.client.getBaseX(), current.getPoint().y + ctx.client.getBaseY(), ctx.client.getPlane()),
 						filter)) != null) {
-					if (!objects.contains(a))
-						objects.addAll(a);
-				} else if ((a = getObjectsAtTile(new Tile(current.getPoint().x - 1 + ctx.client.getBaseX(), current.getPoint().y + ctx.client.getBaseY(), ctx.client.getPlane()),
+					return a;
+				} else if ((a = getObjectAtTile(new Tile(current.getPoint().x - 1 + ctx.client.getBaseX(), current.getPoint().y + ctx.client.getBaseY(), ctx.client.getPlane()),
 						filter)) != null) {
-					if (!objects.contains(a))
-						objects.addAll(a);
-				} else if ((a = getObjectsAtTile(new Tile(current.getPoint().x + ctx.client.getBaseX(), current.getPoint().y + 1 + ctx.client.getBaseY(), ctx.client.getPlane()),
+					return a;
+				} else if ((a = getObjectAtTile(new Tile(current.getPoint().x + ctx.client.getBaseX(), current.getPoint().y + 1 + ctx.client.getBaseY(), ctx.client.getPlane()),
 						filter)) != null) {
-					if (!objects.contains(a))
-						objects.addAll(a);
-				} else if ((a = getObjectsAtTile(new Tile(current.getPoint().x + ctx.client.getBaseX(), current.getPoint().y - 1 + ctx.client.getBaseY(), ctx.client.getPlane()),
+					return a;
+				} else if ((a = getObjectAtTile(new Tile(current.getPoint().x + ctx.client.getBaseX(), current.getPoint().y - 1 + ctx.client.getBaseY(), ctx.client.getPlane()),
 						filter)) != null) {
-					if (!objects.contains(a))
-						objects.addAll(a);
+					return a;
 				}
 				openList = current.getNeighbours(openList, closedList);
 			}
 			openList.remove(current);
 			closedList.add(current);
 		}
-		return objects.toArray(new GameObject[objects.size()]);
+		return null;
 
 	}
 
-	private ArrayList<GameObject> getObjectsAtTile(Tile w, Filter<GameObject> filter) {
-		if(ctx.objects == null){
-			return new ArrayList<GameObject>();
+	private GameObject getObjectAtTile(Tile w, Filter<GameObject> filter) {
+		if (ctx.objects == null) {
+			return null;
 		}
 		List<GameObject> objects = ctx.objects.getAll();
-		ArrayList<GameObject> obs = new ArrayList<GameObject>();
 		for (GameObject o : objects) {
 			if (o.getTile().equals(w)) {
-				if (filter == null || filter.accept(o)) {
-					obs.add(o);
+				if (o != null && (filter == null || filter.accept(o))) {
+					return o;
 				}
 			}
 		}
-		return obs;
+		return null;
 	}
 
 	public DPath findShortestPath(Tile startTile, Tile finishTile) {
 		DPath path = new DPath(ctx);
-
+		sceneMap.clearObjects();
+		sceneMap.updateObjects();
 		ArrayList<DijkstraNode> openList = new ArrayList<DijkstraNode>();
 		ArrayList<DijkstraNode> closedList = new ArrayList<DijkstraNode>();
 

@@ -9,6 +9,7 @@ import org.vinsert.api.wrappers.Tile;
 
 /**
  * A class to store the 3D Dijkstra node information
+ * 
  * @author Cheddy
  *
  */
@@ -131,25 +132,40 @@ public class DijkstraNode implements Comparable<DijkstraNode> {
 		return arrayOpen;
 	}
 
-	public ArrayList<DijkstraNode> addUpAndDownLocations(final ArrayList<DijkstraNode> arrayOpen, final ArrayList<DijkstraNode> arrayClosed, int x, int y) {
-		if (sceneMap.climbUpLocations.containsKey(new Tile((x) + ctx.client.getBaseX(), (y) + ctx.client.getBaseY(), z)) && z < 2) {
-			DijkstraNode n = new DijkstraNode(ctx, this, x, y, z, sceneMap);
-			n.useUp = true;
-			DijkstraNode up = new DijkstraNode(ctx, n, x, y, z + 1, sceneMap);
-			if (listNotContain(n, arrayOpen, arrayClosed) && listNotContain(up, arrayOpen, arrayClosed)) {
-				arrayClosed.add(n);
-				arrayOpen.add(up);
+	public ArrayList<DijkstraNode> addUpAndDownLocations(final ArrayList<DijkstraNode> arrayOpen, ArrayList<DijkstraNode> arrayClosed, int x, int y) {
+		DijkstraNode n = new DijkstraNode(ctx, this, x, y, z, sceneMap);
+		if (listNotContain(n, arrayOpen, arrayClosed)) {
+			if (sceneMap.climbUpLocations.containsKey(new Tile((x) + ctx.client.getBaseX(), (y) + ctx.client.getBaseY(), z)) && z < 2) {
+				n.useUp = true;
+				DijkstraNode up = new DijkstraNode(ctx, n, x, y, z + 1, sceneMap);
+				if (listNotContain(up, arrayOpen, arrayClosed)) {
+					if (!arrayClosed.contains(n))
+						arrayClosed.add(n);
+					arrayOpen.add(up);
+				}
 			}
-		} else if (sceneMap.climbDownLocations.containsKey(new Tile((x) + ctx.client.getBaseX(), (y) + ctx.client.getBaseY(), z)) && z > 0) {
-			DijkstraNode n = new DijkstraNode(ctx, this, x, y, z, sceneMap);
-			n.useDown = true;
-			DijkstraNode down = new DijkstraNode(ctx, n, x, y, z - 1, sceneMap);
-			if (listNotContain(n, arrayOpen, arrayClosed) && listNotContain(down, arrayOpen, arrayClosed)) {
-				arrayClosed.add(n);
-				arrayOpen.add(down);
+			if (sceneMap.climbDownLocations.containsKey(new Tile((x) + ctx.client.getBaseX(), (y) + ctx.client.getBaseY(), z)) && z > 0) {
+				n.useDown = true;
+				DijkstraNode down = new DijkstraNode(ctx, n, x, y, z - 1, sceneMap);
+				if (listNotContain(down, arrayOpen, arrayClosed)) {
+					if (!arrayClosed.contains(n))
+						arrayClosed.add(n);
+					arrayOpen.add(down);
+				}
 			}
 		}
 		return arrayOpen;
+	}
+	
+	@Override
+	public boolean equals(Object node) {
+		if(node instanceof DijkstraNode){
+			DijkstraNode dn = (DijkstraNode) node;
+			if(this.x == dn.x && this.y == dn.y && this.z == dn.z){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public GameObject getBoundaryOnTile() {

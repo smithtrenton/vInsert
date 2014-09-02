@@ -10,7 +10,9 @@ import org.vinsert.api.wrappers.Tile;
 import org.vinsert.game.engine.scene.ICollisionMap;
 
 /**
- * A class used to store the region's collision maps, boundaries, and climbable objects
+ * A class used to store the region's collision maps, boundaries, and climbable
+ * objects
+ * 
  * @author Cheddy
  *
  */
@@ -44,9 +46,10 @@ public class RSLocalMap {
 	private static boolean arrayContains(Object object, Object... array) {
 		if (object != null && array != null) {
 			for (Object o : (Object[]) array) {
-				if (o.equals(object)) {
-					return true;
-				}
+				if (o != null)
+					if (o.equals(object)) {
+						return true;
+					}
 			}
 		}
 		return false;
@@ -56,12 +59,16 @@ public class RSLocalMap {
 		if (isValid()) {
 			List<GameObject> objects = ctx.objects.getAll();
 			for (GameObject o : objects) {
-				if (o.getType() == GameObjectType.BOUNDARY) {
-					boundaries.put(o.getTile(), o);
-				} else if (arrayContains("Climb-up", (Object[]) o.getComposite().getActions())) {
-					climbUpLocations.put(o.getTile(), o);
-				} else if (arrayContains("Climb-down", (Object[]) o.getComposite().getActions())) {
-					climbDownLocations.put(o.getTile(), o);
+				if (o != null && o.getComposite() != null && o.getComposite().getActions() != null) {
+					if (o.getType() == GameObjectType.BOUNDARY && arrayContains("Open", (Object[]) o.getComposite().getActions())) {
+						boundaries.put(o.getTile(), o);
+					} 
+					if (arrayContains("Climb-up", (Object[]) o.getComposite().getActions())) {
+						climbUpLocations.put(o.getTile(), o);
+					} 
+					if (arrayContains("Climb-down", (Object[]) o.getComposite().getActions())) {
+						climbDownLocations.put(o.getTile(), o);
+					}
 				}
 			}
 		}
