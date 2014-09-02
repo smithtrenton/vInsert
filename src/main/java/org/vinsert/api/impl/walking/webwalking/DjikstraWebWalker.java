@@ -12,6 +12,7 @@ import org.vinsert.api.wrappers.Tile;
 
 /**
  * The class containing a web-walker based off Djikstra's algorithm
+ * 
  * @author Cheddy
  *
  */
@@ -38,20 +39,22 @@ public class DjikstraWebWalker {
 		}
 
 		AStar astar = new AStar(ctx);
-		for (StaticWebNode node : path) {
-			Tile[] localPath = astar.generatePath(node.getTile(), true);
-			if(localPath == null){
-				return WalkingResult.NO_PATH;
+		if (path.length > 1) {
+			for (StaticWebNode node : path) {
+				Tile[] localPath = astar.generatePath(node.getTile(), true);
+				if (localPath == null) {
+					return WalkingResult.NO_PATH;
+				}
+				ctx.walking.traverse(localPath, Direction.FORWARDS);
 			}
-			ctx.walking.traverse(localPath, Direction.FORWARDS);
 		}
 		Tile[] localPath = astar.generatePath(finish, true);
-		if(localPath == null){
+		if (localPath == null) {
 			return WalkingResult.NO_PATH;
 		}
 		ctx.walking.traverse(localPath, Direction.FORWARDS);
 		Utilities.sleepUntil(new StatePredicate() {
-			
+
 			@Override
 			public boolean apply() {
 				return !ctx.player.isMoving();
@@ -70,7 +73,11 @@ public class DjikstraWebWalker {
 		}
 		StaticWebNode startNode = nearestNodeTo(start);
 		StaticWebNode finishNode = nearestNodeTo(finish);
-
+		if (startNode.equals(finishNode)) {
+			return new StaticWebNode[] {
+				startNode
+			};
+		}
 		WebNode startt = new WebNode(ctx, startNode, null, null);
 		ArrayList<WebNode> openList = new ArrayList<WebNode>();
 		ArrayList<WebNode> closedList = new ArrayList<WebNode>();
