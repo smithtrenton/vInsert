@@ -57,7 +57,7 @@ public final class Npc extends Entity implements Wrapper<INpc> {
         composite = new NpcComposite(unwrap().getComposite());
         if (!composite.isValid()) {
             NpcComposite composite = context.composites.getNpcComposite(getId());
-            if (composite.isValid() && composite.getModelIds() != null && composite.getModelIds().length > getRealIdIndex()) {
+            if (composite != null && composite.isValid() && composite.getModelIds() != null && composite.getModelIds().length > getRealIdIndex()) {
                 composite = context.composites.getNpcComposite(getRealId());
                 if (composite.isValid()) {
                     return (this.composite = composite);
