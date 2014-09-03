@@ -11,12 +11,12 @@ import org.vinsert.api.util.Utilities;
 import org.vinsert.api.wrappers.Tile;
 
 /**
- * The class containing a web-walker based off Djikstra's algorithm
+ * The class containing a web-walker based off Dijkstra's algorithm
  * 
  * @author Cheddy
  *
  */
-public class DjikstraWebWalker {
+public class DijkstraWebWalker {
 
 	MethodContext ctx;
 
@@ -24,7 +24,7 @@ public class DjikstraWebWalker {
 		NO_PATH, NULL_TILE, FAILED_WALKING, SUCCESS
 	};
 
-	public DjikstraWebWalker(MethodContext ctx) {
+	public DijkstraWebWalker(MethodContext ctx) {
 		this.ctx = ctx;
 	}
 
